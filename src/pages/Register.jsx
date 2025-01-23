@@ -1,28 +1,32 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-function Login() {
+function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-  const from = location.state?.from?.pathname || '/dashboard';
+  const { register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    if (!email || !password || !confirmPassword) {
       setError('All fields are required');
       return;
     }
 
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
-      await login(email, password);
-      navigate(from, { replace: true });
+      await register(email, password);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     }
@@ -31,37 +35,50 @@ function Login() {
   return (
     <div className="page auth-page">
       <div className="auth-container">
-        <h1>Login</h1>
+        <h1>Create Account</h1>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email:</label>
+            <label htmlFor="email">Email Address</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              autoComplete="email"
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password:</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Choose a password"
+              autoComplete="new-password"
             />
           </div>
-          <button type="submit">Login</button>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm your password"
+              autoComplete="new-password"
+            />
+          </div>
+          <button type="submit">Create Account</button>
         </form>
         <p className="auth-link">
-          Don't have an account? <Link to="/register">Register here</Link>
+          Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Register;

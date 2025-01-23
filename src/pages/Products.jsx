@@ -1,31 +1,46 @@
-import { Link, Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { products } from '../data/products';
+import ProductCard from '../components/ProductCard';
 
 function Products() {
-  const products = [
-    { id: 1, name: 'Product 1' },
-    { id: 2, name: 'Product 2' },
-    { id: 3, name: 'Product 3' },
-  ];
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const location = useLocation();
+  const showingProductDetails = location.pathname !== '/products';
+
+  const categories = ['All', ...new Set(products.map(product => product.category))];
+  
+  const filteredProducts = selectedCategory === 'All'
+    ? products
+    : products.filter(product => product.category === selectedCategory);
 
   return (
     <div className="page products">
       <h1>Products</h1>
       <div className="products-container">
-        <div className="product-list">
-          <h2>Product List</h2>
-          {products.map(product => (
-            <Link 
-              key={product.id}
-              to={`/products/${product.id}`}
-              className="product-link"
-            >
-              {product.name}
-            </Link>
-          ))}
-        </div>
-        <div className="product-details">
+        {!showingProductDetails ? (
+          <>
+            <div className="categories">
+              <h2>Categories</h2>
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`category-button ${selectedCategory === category ? 'active' : ''}`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+            <div className="products-grid">
+              {filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </>
+        ) : (
           <Outlet />
-        </div>
+        )}
       </div>
     </div>
   );
