@@ -33,7 +33,7 @@ function Products() {
               ))}
             </div>
             <div className="products-grid">
-              {update.map(product => (
+              {filteredProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
